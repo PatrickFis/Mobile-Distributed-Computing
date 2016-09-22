@@ -57,24 +57,21 @@ int main(int argc, char *argv[]) {
   /* Figure out this process's share of the array, as well as the integers represented
   by the first and last array elements */
 
-  low_value = 2 + BLOCK_LOW(id,p,n-1);
-  if(low_value%2==0) low_value++;
-  high_value = 2 + BLOCK_HIGH(id,p,n-1);
-  if(high_value%2==0) high_value--;
-  size = BLOCK_SIZE(id,p,n-1);
-  if(size%2==0) size /= 2;
-  else size = (size+1) / 2;
-  // printf("low: %d, high: %d, size: %d, id: %d\n", low_value, high_value, size); // debug
+  low_value = 3 + (2*BLOCK_LOW(id,p,(n-2)/2));
+  high_value = 3 + (2*BLOCK_HIGH(id,p,(n-2)/2));
+  size = BLOCK_SIZE(id,p,(n-2)/2);
 
-    /* Bail out if all the primes used for sieving are not all held by process 0 */
+  //printf("%d) size=%d, low=%d,high=%d\n",id,size,low_value,high_value);
 
-    proc0_size = (n-1)/p;
+  /* Bail out if all the primes used for sieving are not all held by process 0 */
 
-    if((2 + proc0_size) < (int) sqrt((double)n)) {
-      if(!id) printf("Too many processes\n");
-      MPI_Finalize();
-      exit(1);
-    }
+  proc0_size = (n-2)/(2*p);
+
+  if((3 + 2*proc0_size) < (int) sqrt((double)n)) {
+    if(!id) printf("Too many processes\n");
+    MPI_Finalize();
+    exit(1);
+  }
 
     /* Allocate this process's share of the array. */
 
