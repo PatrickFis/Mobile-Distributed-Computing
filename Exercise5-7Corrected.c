@@ -98,6 +98,23 @@ int main(int argc, char *argv[]) {
       low_primes[j] = 1;
     }
   }
+  // Implement this with some form of dynamic array later
+  int local_prime_count = 0;
+  for(i = 2; i < sqrtN; i++) {
+    if(!low_primes[i]) {
+      local_prime_count++;
+    }
+  }
+  char *local_primes = (char*)malloc(local_prime_count);
+  int c = 0;
+  for(i = 2; i < sqrtN; i++) {
+    if(!low_primes[i]) {
+      local_primes[c++] = i;
+    }
+  }
+  for(i = 0; i < local_prime_count; i++) {
+    printf("%d\n", local_primes[i]);
+  }
   //printf("\n");
   if(!id) index = 0;
   prime = 3;
