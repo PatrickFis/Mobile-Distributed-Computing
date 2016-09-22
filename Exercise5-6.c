@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
   size = BLOCK_SIZE(id,p,n-1);
   if(size%2==0) size /= 2;
   else size = (size+1) / 2;
-  // printf("low: %d, high: %d, size: %d, id: %d\n", low_value, high_value, size); // debug
+  printf("low: %d, high: %d, size: %d, id: %d\n", low_value, high_value, size); // debug
 
     /* Bail out if all the primes used for sieving are not all held by process 0 */
 
@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
       if(prime*prime > low_value) {
         first = (prime*prime - low_value)/2; // Actual index should be half this value because the
         // array only has half the memory allocated to it.
+        printf("first: %d\n", first);
       }
       else { // If prime*prime < low_value, then we aren't on process 0...
         // printf("prime*prime = %d, id=%d\n", prime*prime, id); // debug
