@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
         else {
           //first = prime - (low_value % prime);
           first = low_value;
-          while(first % prime != 0 && first < n)
+          while(first % prime != 0 && first < high_value)
               first += 2;  
           first = ((first - 3) / 2) - ((low_value - 3)/2); 
           //first = low_value % prime;
