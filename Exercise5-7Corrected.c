@@ -112,12 +112,13 @@ int main(int argc, char *argv[]) {
       local_primes[c++] = i;
     }
   }
-  for(i = 0; i < local_prime_count; i++) {
-    printf("%d\n", local_primes[i]);
-  }
+  // for(i = 0; i < local_prime_count; i++) {
+  //   printf("%d\n", local_primes[i]);
+  // }
   //printf("\n");
   if(!id) index = 0;
-  prime = 3;
+  int local_index = 0;
+  prime = local_primes[local_index];
   do {
 
     if(prime * prime > low_value)
@@ -146,13 +147,19 @@ int main(int argc, char *argv[]) {
       //printf("%d(%d), ",i,i*2+3);
     }
     //printf("\n");
-    if(!id) {
-      while(marked[++index]);
-      prime = (2*index) + 3;
-      //printf("next prime %d\n",prime);
+    // if(!id) {
+    //   while(marked[++index]);
+    //   prime = (2*index) + 3;
+    //   //printf("next prime %d\n",prime);
+    // }
+    // MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    prime = local_primes[local_index++];
+  } while(prime * prime <= n && local_index < local_prime_count);
+  for(i = 0; i < size; i++) {
+    if(!marked[i]) {
+      printf("prime: %d, id: %d\n", i, id);
     }
-    MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  } while(prime * prime <= n);
+  }
   count = 0;
   for(i = 0; i < size; i++)
   if(!marked[i]) count++;
