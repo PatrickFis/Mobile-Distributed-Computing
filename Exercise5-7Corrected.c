@@ -3,6 +3,12 @@
 */
 // Compile with mpicc -o Sieve Sieve.c -lm
 
+/*
+*
+* Exercise 5-7, remove the broadcast step from the Sieve algorithm.
+* Removed broadcast step, there are errors. I believe there is an error because in
+* my array of primes < sqrtN I have the number 2
+*/
 
 #include <mpi.h>
 #include <math.h>
@@ -112,12 +118,13 @@ int main(int argc, char *argv[]) {
       local_primes[c++] = i;
     }
   }
-  // for(i = 0; i < local_prime_count; i++) {
-  //   printf("%d\n", local_primes[i]);
-  // }
-  //printf("\n");
+  printf("Prime list:\n"); // Debug
+  for(i = 0; i < local_prime_count; i++) { // Debug
+    printf("%d\n", local_primes[i]);
+  }
+  printf("\n"); // Debug
   if(!id) index = 0;
-  int local_index = 0;
+  int local_index = 1; // Start at 3, not 2...
   prime = local_primes[local_index];
   // printf("n: %d\n", n); // Debug
   do {
@@ -145,7 +152,7 @@ int main(int argc, char *argv[]) {
     //printf("marked: ");
     for(i = first; i < size; i += prime) {
        marked[i] = 1;
-      //printf("%d(%d), ",i,i*2+3);
+      // printf("%d(%d), id: %d\n",i,i*2+3,id);
     }
     //printf("\n");
     // if(!id) {
@@ -158,10 +165,15 @@ int main(int argc, char *argv[]) {
   } while(prime * prime <= n && local_index < local_prime_count);
   for(i = 0; i < size; i++) { // Debug
     if(!marked[i]) {
-      if(id == 0)printf("prime: %d, id: %d\n", i, id);
+      if(id == 0)printf("prime: %d, id: %d\n", i*2 + low_value, id);
       else printf("prime: %d, id: %d\n", i*2 + low_value, id);
     }
   }
+  // for(i = 0; i < size; i++) { // Debug
+  //   if(marked[i]) {
+  //     printf("Not prime: %d, id: %d\n", i*2+low_value, id);
+  //   }
+  // }
   count = 0;
   for(i = 0; i < size; i++)
   if(!marked[i]) count++;
