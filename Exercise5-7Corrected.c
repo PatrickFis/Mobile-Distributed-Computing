@@ -162,13 +162,13 @@ int main(int argc, char *argv[]) {
     // }
     // MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
     prime = local_primes[local_index++];
-  } while(prime * prime <= n && local_index < local_prime_count);
-  for(i = 0; i < size; i++) { // Debug
-    if(!marked[i]) {
-      if(id == 0)printf("prime: %d, id: %d\n", i*2 + low_value, id);
-      else printf("prime: %d, id: %d\n", i*2 + low_value, id);
-    }
-  }
+  } while(prime * prime <= n && local_index <= local_prime_count);
+  // for(i = 0; i < size; i++) { // Debug
+  //   if(!marked[i]) {
+  //     if(id == 0)printf("prime: %d, id: %d\n", i*2 + low_value, id);
+  //     else printf("prime: %d, id: %d\n", i*2 + low_value, id);
+  //   }
+  // }
   // for(i = 0; i < size; i++) { // Debug
   //   if(marked[i]) {
   //     printf("Not prime: %d, id: %d\n", i*2+low_value, id);
