@@ -7,7 +7,9 @@
 *
 * Exercise 5-7, remove the broadcast step from the Sieve algorithm.
 * Removed broadcast step, there are errors. I believe there is an error because in
-* my array of primes < sqrtN I have the number 2
+* my array of primes < sqrtN I have the number 2.
+* Fixed this error by starting at 3 instead of 2. Appears to work for different
+* numbers of processes. Segfault around 18K integers???
 */
 
 #include <mpi.h>
@@ -118,11 +120,11 @@ int main(int argc, char *argv[]) {
       local_primes[c++] = i;
     }
   }
-  printf("Prime list:\n"); // Debug
-  for(i = 0; i < local_prime_count; i++) { // Debug
-    printf("%d\n", local_primes[i]);
-  }
-  printf("\n"); // Debug
+  // printf("Prime list:\n"); // Debug
+  // for(i = 0; i < local_prime_count; i++) { // Debug
+  //   printf("%d\n", local_primes[i]);
+  // }
+  // printf("\n"); // Debug
   if(!id) index = 0;
   int local_index = 1; // Start at 3, not 2...
   prime = local_primes[local_index];
