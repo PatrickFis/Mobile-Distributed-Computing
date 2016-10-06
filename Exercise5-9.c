@@ -28,9 +28,6 @@ int main(int argc, char *argv[]) {
 	int proc0_size; // Size of proc 0's subarray
 	int size; // Elements in 'marked'
 
-  final_primes = (char *) malloc(n);
-  for(i = 0; i < n; i++) final_primes[i] = 0;
-
 	MPI_Init(&argc, &argv);
 
 	/* Start the timer */
@@ -46,6 +43,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	n = atoi(argv[1]);
+
+	  final_primes = (char *) malloc(n);
+	  for(i = 0; i < n; i++) final_primes[i] = 0;
 
   int sqrtN = (int)sqrt((double)n);
   low_primes = (char *) malloc(sqrtN); // This is the 3 ... sqrt(n) array.
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
       if(!final_primes[i]) count++;
       // printf("%d, ", i);
     }
-    printf("\n%d primes are less than or equal to %d\n", count,n);
+    printf("\n%d primes are less than or equal to %d\n", count-2,n);
 		printf("Total elapsed time: %10.6f\n", elapsed_time);
   }
   MPI_Finalize();
