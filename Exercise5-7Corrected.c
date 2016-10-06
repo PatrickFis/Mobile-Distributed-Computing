@@ -110,7 +110,13 @@ int main(int argc, char *argv[]) {
 	}
 	// Implement this with some form of dynamic array later
 	int local_prime_count = 0;
-	int local_primes[local_prime_count]; // Holds prime numbers below sqrtN.
+	for(i = 2; i < sqrtN; i++) {
+		if(!low_primes[i]) {
+			local_prime_count++;
+//			printf("low_primes[i]: %d, i: %d\n",low_primes[i],i);
+		}
+	}
+	int local_primes[local_prime_count];
 //	char *local_primes = (char*)malloc(local_prime_count); // Holds prime numbers below sqrtN.
 	int c = 0;
 	for(i = 2; i < sqrtN; i++) {
