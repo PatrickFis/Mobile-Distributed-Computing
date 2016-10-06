@@ -1,1 +1,3 @@
 Turn in Exercise5-6Fixed.c, Exercise5-7Corrected.c, and whatever you make for the reorganize loops homework. Also turn in MyMPI.h and MyMPI.c.
+
+Look at Exercise 5.9 if Exercise 5.8 is not feasible.
