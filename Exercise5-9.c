@@ -28,6 +28,9 @@ int main(int argc, char *argv[]) {
 	int proc0_size; // Size of proc 0's subarray
 	int size; // Elements in 'marked'
 
+  final_primes = (char *) malloc(n);
+  for(i = 0; i < n; i++) final_primes[i] = 0;
+
 	MPI_Init(&argc, &argv);
 
 	/* Start the timer */
@@ -102,10 +105,7 @@ int main(int argc, char *argv[]) {
   // for(i = 0; i < n; i++) { // Debug
   //   if(!marked[i]) printf("marked prime: %d, id: %d\n", i, id);
   // }
-  final_primes = (char *) malloc(n);
-  for(i = 0; i < n; i++) final_primes[i] = 0;
-  if(id != 0)
-  MPI_Reduce(&marked, &final_primes, 1, MPI_CHAR, MPI_LOR, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&marked, &final_primes, 1, MPI_INT, MPI_LOR, 0, MPI_COMM_WORLD);
   // for(i = 0; i < n; i++) {
   //   printf("final_primes[i]: %d, i: %d, id: %d\n", final_primes[i], i, id);
   // }
