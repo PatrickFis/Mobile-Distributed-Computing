@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 	int id; // Process ID number
 	char *marked; // Portion of 2, ... , 'n'
 	char *low_primes; // Seperate array for each process that will contain 3, ... , sqrt(n)
+  char *final_primes; // Array used by process 0. Will be OR reduced into.
 	int n; // Sieving fron 2, ... , 'n'
 	int p; // Number of processes
 	int proc0_size; // Size of proc 0's subarray
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]) {
   int *primes_per_process; // This will hold the prime numbers that each process will sieve with.
   int local_count = 0;
   for(i = id; i < low_prime_count; i+=p) {
-    // printf("prime: %d, id: %d\n", local_primes[i], id); // Debug
+    printf("prime: %d, id: %d\n", local_primes[i], id); // Debug
     local_count++;
   }
   primes_per_process = (int*) malloc(sizeof(int)*local_count);
@@ -89,14 +90,36 @@ int main(int argc, char *argv[]) {
   // }
 
   marked = (char *) malloc(n); // This is where the actual sieving will take place
+  for(i = 0; i < n; i++) marked[i] = 0;
+
+  int prime;
   for(i = 0; i < c; i++) { // Will go through list of primes per process
-
+    prime = primes_per_process[i];
+    for(int j = prime*2; j < n; j+=prime) {
+      marked[j] = 1;
+    }
   }
-
-
-
-
+  // for(i = 0; i < n; i++) { // Debug
+  //   if(!marked[i]) printf("marked prime: %d, id: %d\n", i, id);
+  // }
+  final_primes = (char *) malloc(n);
+  for(i = 0; i < n; i++) final_primes[i] = 0;
+  if(id != 0)
+  MPI_Reduce(&marked, &final_primes, 1, MPI_CHAR, MPI_LOR, 0, MPI_COMM_WORLD);
+  // for(i = 0; i < n; i++) {
+  //   printf("final_primes[i]: %d, i: %d, id: %d\n", final_primes[i], i, id);
+  // }
   elapsed_time += MPI_Wtime();
+
+  int count = 0;
+  if(id==0) {
+    for(i = 0; i < n; i++) {
+      if(!final_primes[i]) count++;
+      // printf("%d, ", i);
+    }
+    printf("\n%d primes are less than or equal to %d\n", count,n);
+		printf("Total elapsed time: %10.6f\n", elapsed_time);
+  }
   MPI_Finalize();
   return 0;
 }
