@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 			low_primes[j] = 1;
 		}
 	}
-	// Implement this with some form of dynamic array later
+	// This would be better with a dynamic array
 	int local_prime_count = 0;
 	for(i = 2; i < sqrtN; i++) {
 		if(!low_primes[i]) {
