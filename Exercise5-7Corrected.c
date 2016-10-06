@@ -12,6 +12,10 @@
  * numbers of processes. Segfault around 18K integers???
  * Found the issue. Apparently a negative value is somehow being marked as
  * a prime number in the local_primes array.
+ *
+ * Appears to be working for the most part after fixing an issue with the local_primes array.
+ * The char* array had negative values in it, so I just changed it to an integer
+ * array.
  */
 
 #include <mpi.h>
