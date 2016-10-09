@@ -14,7 +14,11 @@
 #include <stdio.h>
 #include <gmp.h>
 #include "MyMPI.h"
+// So I might just need to convert the local sum to a string and then use MPI_send to send it to process 0.
+// It will need to be converted back to a floating point number and then added up.
+void myProd(mpf_t *local_sum, mpf_t *global_sum, int *len, MPI_Datatype *dptr) {
 
+}
 int main(int argc, char *argv[]) {
   double elapsed_time; // Parallel execution time
   double i;
@@ -52,17 +56,17 @@ int main(int argc, char *argv[]) {
   //   printf("%d, id: %d\n", step[j], id);
   // }
   mpf_t sum; // Local sum for each process
-  mpf_init2(sum, d);
+  mpf_init2(sum, 1000);
 
   mpf_t numerator; // Fractions numerator, always 1
-  mpf_init2(numerator, d);
+  mpf_init2(numerator, 1000);
   mpf_set_d(numerator, 1.0);
 
   mpf_t denominator; // Fractions denominator, equals i
-  mpf_init2(denominator, d);
+  mpf_init2(denominator, 1000);
 
   mpf_t frac;
-  mpf_init2(frac, d);
+  mpf_init2(frac, 1000);
 
   for(i = step[id]; i < step[id+1]; i++) {
     mpf_set_d(denominator, i);
