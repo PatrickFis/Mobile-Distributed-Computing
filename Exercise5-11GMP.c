@@ -4,9 +4,10 @@
 * library to save some time. The program can be compiled by typing
 * mpicc -o Exercise5-11 Exercise5-11GMP.c -lgmp. The last flag is to link the GMP library.
 *
-* mpf_t is a rational number
+* mpf_t is a floating point number
 * mpf_init(var) = set to 0 with default precision
 * mpf_init2(var, num) set to 0 with num bits of precision
+* char * mpf_get_str (char *str, mp_exp_t *expptr, int base, size_t n_digits, const mpf_t op) converts floats
 */
 
 #include <mpi.h>
@@ -16,6 +17,9 @@
 #include "MyMPI.h"
 // So I might just need to convert the local sum to a string and then use MPI_send to send it to process 0.
 // It will need to be converted back to a floating point number and then added up.
+
+// I might need to write a custom reduce with some sort of typedef struct made up of
+// just one mpf_t.
 void myProd(mpf_t *local_sum, mpf_t *global_sum, int *len, MPI_Datatype *dptr) {
 
 }
@@ -27,6 +31,10 @@ int main(int argc, char *argv[]) {
   int n; // Range of series
   int d; // Precision of series
   mpf_t global_sum; // Results from each process will be summed into this.
+  mpf_init2(global_sum, 1000);
+  mp_exp_t exponent; // Holds the exponent used for converting floats into strings.
+  MPI_Status status;
+
   MPI_Init(&argc, &argv);
 
   /* Start the timer */
@@ -34,6 +42,8 @@ int main(int argc, char *argv[]) {
   elapsed_time = -MPI_Wtime();
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &p);
+
+  char *local_vals[p]; // Will be used to store the local sums as strings
 
   if(id == 0) { // Get n and d, broadcast to other processes.
     printf("Enter n: ");
@@ -74,11 +84,26 @@ int main(int argc, char *argv[]) {
     mpf_div(frac, numerator, denominator); // Set frac = numerator/denominator
     // gmp_printf("frac: %.Ff\n", frac);
     mpf_add(sum, sum, frac);
-    // gmp_printf("%.Ff\n", sum);
+    // gmp_printf("sum = %.Ff\n", sum);
     // gmp_printf("sum: %.*Ff, numer: %.*Ff, denom: %.*Ff frac: %.*Ff\n", sum, numerator, denominator, frac);
   }
+  char *sumString;
+  sumString = mpf_get_str(NULL, &exponent, 10, 0, sum);
+  // printf("sumString = %s, exp = %d\n", sumString, exponent);
+  local_vals[id] = sumString; // Store sum as a string
+  MPI_Barrier(MPI_COMM_WORLD);
   if(id == 0) {
-    gmp_printf("%.Ff\n", sum);
+    MPI_Recv(&sumString, 1000, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    MPI_Recv(&exponent, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+    printf("sumString = %s, exp = %d\n", sumString, exponent);
+  }
+  else {
+    MPI_Send(&sumString, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
+    MPI_Send(&exponent, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  }
+  if(id == 0) {
+    gmp_printf("%.Ff\n", global_sum);
   }
   MPI_Finalize();
   return 0;
