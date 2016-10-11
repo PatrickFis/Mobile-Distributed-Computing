@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
   mpf_init2(global_sum, 1000);
   mp_exp_t exponent; // Holds the exponent used for converting floats into strings.
   MPI_Status status;
-  char *sump0, *ep0, *sump1, *ep1;
+  char *sump0, *ep0, *sump1, *ep1; // Hack
+  sump0 = ep0 = sump1 = ep1 = NULL;
   MPI_Init(&argc, &argv);
 
   /* Start the timer */
@@ -96,14 +97,36 @@ int main(int argc, char *argv[]) {
   char buffer[32];
   int ret = snprintf(buffer, sizeof(buffer), "%d", convert);
   sumExponent[1] = buffer;
-  // printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
-  MPI_Gather(sumString, 1, MPI_CHAR, sendArray, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
   if(id == 0) {
-    for(int i = 0; i < p*2; i++) {
-      char* temp = sendArray[i];
-      printf("%s\n",sendArray[i]);
-      // printf("%s\n",sendArray[i]);
-    }
+    sump0 = sumExponent[0];
+    ep0 = sumExponent[1];
+    // MPI_Bcast(&sump0, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    // MPI_Bcast(&ep0, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Recv(&sump1, 1, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(&ep1, 1, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &status);
+    printf("debug\n");
+  }
+  if(id == 1) {
+    sump1 = sumExponent[0];
+    ep1 = sumExponent[1];
+    // printf("%s\n%s\n",sump1,ep1);
+    // MPI_Bcast(&sump1, 1, MPI_CHAR, 1, MPI_COMM_WORLD);
+    // MPI_Bcast(&ep1, 1, MPI_CHAR, 1, MPI_COMM_WORLD);
+    MPI_Send(&sump1, 1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(&ep1, 1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    printf("id: %d\n",id);
+  }
+  // printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
+  // if(id == 0) {
+  //   for(int i = 0; i < p*2; i++) {
+  //     char* temp = sendArray[i];
+  //     printf("%s\n",sendArray[i]);
+  //     // printf("%s\n",sendArray[i]);
+  //   }
+  // }
+  if(id == 0) {
+    printf("%s\n%s\n%s\n%s\n", sump0,ep0,sump1,ep1);
   }
   // printf("sumString = %s, exp = %d\n", sumString, exponent);
   // local_vals[id] = sumString; // Store sum as a string
