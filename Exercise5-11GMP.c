@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   mpf_init2(global_sum, 1000);
   mp_exp_t exponent; // Holds the exponent used for converting floats into strings.
   MPI_Status status;
-
+  char *sump0, *ep0, *sump1, *ep1;
   MPI_Init(&argc, &argv);
 
   /* Start the timer */
@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
   elapsed_time = -MPI_Wtime();
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &p);
-
   char *local_vals[p]; // Will be used to store the local sums as strings
 
   if(id == 0) { // Get n and d, broadcast to other processes.
@@ -97,7 +96,15 @@ int main(int argc, char *argv[]) {
   char buffer[32];
   int ret = snprintf(buffer, sizeof(buffer), "%d", convert);
   sumExponent[1] = buffer;
-  printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
+  // printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
+  MPI_Gather(sumString, 1, MPI_CHAR, sendArray, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+  if(id == 0) {
+    for(int i = 0; i < p*2; i++) {
+      char* temp = sendArray[i];
+      printf("%s\n",sendArray[i]);
+      // printf("%s\n",sendArray[i]);
+    }
+  }
   // printf("sumString = %s, exp = %d\n", sumString, exponent);
   // local_vals[id] = sumString; // Store sum as a string
   // MPI_Barrier(MPI_COMM_WORLD);
