@@ -20,6 +20,8 @@
 
 // I might need to write a custom reduce with some sort of typedef struct made up of
 // just one mpf_t.
+
+// I might be able to do this with MPI_Gather instead. I can send an array containing the local sum as a string and the exponent.
 void myProd(mpf_t *local_sum, mpf_t *global_sum, int *len, MPI_Datatype *dptr) {
 
 }
@@ -34,7 +36,8 @@ int main(int argc, char *argv[]) {
   mpf_init2(global_sum, 1000);
   mp_exp_t exponent; // Holds the exponent used for converting floats into strings.
   MPI_Status status;
-
+  char *sump0, *ep0, *sump1, *ep1; // Hack
+  sump0 = ep0 = sump1 = ep1 = NULL;
   MPI_Init(&argc, &argv);
 
   /* Start the timer */
@@ -42,7 +45,6 @@ int main(int argc, char *argv[]) {
   elapsed_time = -MPI_Wtime();
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &p);
-
   char *local_vals[p]; // Will be used to store the local sums as strings
 
   if(id == 0) { // Get n and d, broadcast to other processes.
@@ -89,19 +91,57 @@ int main(int argc, char *argv[]) {
   }
   char *sumString;
   sumString = mpf_get_str(NULL, &exponent, 10, 0, sum);
-  // printf("sumString = %s, exp = %d\n", sumString, exponent);
-  local_vals[id] = sumString; // Store sum as a string
+  char *sumExponent[2];
+  sumExponent[0] = sumString;
+  int convert = exponent; // This is a horrible hack. Had to convert the exponent from a long int * to a character pointer.
+  char buffer[32];
+  int ret = snprintf(buffer, sizeof(buffer), "%d", convert);
+  sumExponent[1] = buffer;
   MPI_Barrier(MPI_COMM_WORLD);
   if(id == 0) {
-    MPI_Recv(&sumString, 1000, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-    MPI_Recv(&exponent, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-    printf("sumString = %s, exp = %d\n", sumString, exponent);
+    sump0 = sumExponent[0];
+    ep0 = sumExponent[1];
+    // MPI_Bcast(&sump0, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    // MPI_Bcast(&ep0, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Recv(&sump1, 1, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(&ep1, 1, MPI_CHAR, 1, 0, MPI_COMM_WORLD, &status);
+    printf("debug\n");
   }
-  else {
-    MPI_Send(&sumString, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
-    MPI_Send(&exponent, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  if(id == 1) {
+    sump1 = sumExponent[0];
+    ep1 = sumExponent[1];
+    // printf("%s\n%s\n",sump1,ep1);
+    // MPI_Bcast(&sump1, 1, MPI_CHAR, 1, MPI_COMM_WORLD);
+    // MPI_Bcast(&ep1, 1, MPI_CHAR, 1, MPI_COMM_WORLD);
+    MPI_Send(&sump1, 1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(&ep1, 1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    printf("id: %d\n",id);
   }
+  // printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
+  // if(id == 0) {
+  //   for(int i = 0; i < p*2; i++) {
+  //     char* temp = sendArray[i];
+  //     printf("%s\n",sendArray[i]);
+  //     // printf("%s\n",sendArray[i]);
+  //   }
+  // }
+  if(id == 0) {
+    printf("%s\n%s\n%s\n%s\n", sump0,ep0,sump1,ep1);
+  }
+  // printf("sumString = %s, exp = %d\n", sumString, exponent);
+  // local_vals[id] = sumString; // Store sum as a string
+  // MPI_Barrier(MPI_COMM_WORLD);
+  // if(id != 0) {
+  //   MPI_Send(&sumString, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
+  //   MPI_Send(&exponent, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+  //   printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  // }
+  // else {
+  //   MPI_Recv(&sumString, 1, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+  //   MPI_Recv(&exponent, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+  //   printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  //   gmp_printf("sumString=%.Ff\n",sumString);
+  // }
   if(id == 0) {
     gmp_printf("%.Ff\n", global_sum);
   }
