@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
   sumString = mpf_get_str(NULL, &exponent, 10, 0, sum);
   char *sumExponent[2];
   sumExponent[0] = sumString;
-  int convert = exponent; // This is a horrible hack. Had to convert the exponent from a long int * to a character.
+  int convert = exponent; // This is a horrible hack. Had to convert the exponent from a long int * to a character pointer.
   char buffer[32];
   int ret = snprintf(buffer, sizeof(buffer), "%d", convert);
   sumExponent[1] = buffer;
