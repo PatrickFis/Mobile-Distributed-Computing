@@ -59,7 +59,9 @@ int main(int argc, char *argv[]) {
   for(i = step[id]; i < step[id+1]; i++) {
     mpq_set_si(frac, 1, i); // frac = 1/i
     // mpq_canonicalize(frac);
-    gmp_printf("%F\n", frac);
+    // gmp_printf("frac=%F\n", frac);
+    mpq_add(sum, sum, frac);
+    // gmp_printf("sum=%F\n");
   }
   MPI_Finalize();
   return 0;

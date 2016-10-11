@@ -20,6 +20,8 @@
 
 // I might need to write a custom reduce with some sort of typedef struct made up of
 // just one mpf_t.
+
+// I might be able to do this with MPI_Gather instead. I can send an array containing the local sum as a string and the exponent.
 void myProd(mpf_t *local_sum, mpf_t *global_sum, int *len, MPI_Datatype *dptr) {
 
 }
@@ -89,19 +91,27 @@ int main(int argc, char *argv[]) {
   }
   char *sumString;
   sumString = mpf_get_str(NULL, &exponent, 10, 0, sum);
+  char *sumExponent[2];
+  sumExponent[0] = sumString;
+  int convert = exponent; // This is a horrible hack. Had to convert the exponent from a long int * to a character.
+  char buffer[32];
+  int ret = snprintf(buffer, sizeof(buffer), "%d", convert);
+  sumExponent[1] = buffer;
+  printf("sumString = %s, exponent = %s\n", sumExponent[0], sumExponent[1]);
   // printf("sumString = %s, exp = %d\n", sumString, exponent);
-  local_vals[id] = sumString; // Store sum as a string
-  MPI_Barrier(MPI_COMM_WORLD);
-  if(id == 0) {
-    MPI_Recv(&sumString, 1000, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-    MPI_Recv(&exponent, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-    printf("sumString = %s, exp = %d\n", sumString, exponent);
-  }
-  else {
-    MPI_Send(&sumString, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
-    MPI_Send(&exponent, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
-  }
+  // local_vals[id] = sumString; // Store sum as a string
+  // MPI_Barrier(MPI_COMM_WORLD);
+  // if(id != 0) {
+  //   MPI_Send(&sumString, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
+  //   MPI_Send(&exponent, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+  //   printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  // }
+  // else {
+  //   MPI_Recv(&sumString, 1, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+  //   MPI_Recv(&exponent, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+  //   printf("sumString = %s, exp = %d, id=%d\n", sumString, exponent, id);
+  //   gmp_printf("sumString=%.Ff\n",sumString);
+  // }
   if(id == 0) {
     gmp_printf("%.Ff\n", global_sum);
   }
