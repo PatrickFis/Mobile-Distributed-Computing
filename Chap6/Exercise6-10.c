@@ -57,7 +57,10 @@ int main(int argc, char *argv[]) {
   // }
   if(id == 0) {
     changeMe = 1000;
-    MPI_Send(&changeMe, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    for(int i = 1; i < p; i++) {
+      MPI_Send(&changeMe, i, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    }
+    // MPI_Send(&changeMe, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
     // myBcast(&changeMe, 1, MPI_INT, 0, MPI_COMM_WORLD, p, status);
   }
     myBcast(&changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
