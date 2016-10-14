@@ -1,7 +1,8 @@
 /*
 * Exercise 6-10 - Write your own version of MPI_Bcast using MPI_Send and
 * MPI_Recv.
-*
+* Appears to be working when there are only two processes. Probably a pointer
+* issue.
 */
 #include <mpi.h>
 #include <math.h>
