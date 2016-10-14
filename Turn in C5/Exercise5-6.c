@@ -1,7 +1,7 @@
 /*
 * Sieve of Eratosthenes
 */
-// Compile with mpicc -o Ecercise5-6 Exercise5-6.c -lm
+// Compile with mpicc -o Sieve Sieve.c -lm
 
 
 #include <mpi.h>
