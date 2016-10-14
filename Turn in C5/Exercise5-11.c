@@ -9,7 +9,6 @@
 #include <mpi.h>
 #include <math.h>
 #include <stdio.h>
-#include <gmp.h>
 #include "MyMPI.h"
 
 int main(int argc, char *argv[]) {
