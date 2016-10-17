@@ -1,8 +1,6 @@
 /*
 * Exercise 6-10 - Write your own version of MPI_Bcast using MPI_Send and
 * MPI_Recv.
-* Appears to be working when there are only two processes. Probably a pointer
-* issue.
 */
 #include <mpi.h>
 #include <math.h>
@@ -26,12 +24,12 @@ int myBcast(int buffer,
   */
   if(root == 0) {
     for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
       // printf("buffer: %d, i: %d\n", buffer,i);
     }
   }
   else {
-    MPI_Recv(&buffer, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
     return buffer;
   }
   // switch(root) {
