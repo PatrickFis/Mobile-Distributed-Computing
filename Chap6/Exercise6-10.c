@@ -8,7 +8,13 @@
 #include <math.h>
 #include <stdio.h>
 #include "MyMPI.h"
-int myBcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, int numProcesses, MPI_Status status) {
+int myBcast(void *buffer,
+            int count,
+            MPI_Datatype datatype,
+            int root,
+            MPI_Comm comm,
+            int numProcesses,
+            MPI_Status status) {
   /*
   * buffer - Address of 1st broadcast element
   * count - Number of elements to broadcast
@@ -19,10 +25,12 @@ int myBcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm c
   * status - Used for MPI_Recv.
   */
   if(root == 0) {
-    MPI_Send(buffer, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    for(int i = 1; i < numProcesses; i++) {
+      MPI_Send(&buffer, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+    }
   }
   else {
-    MPI_Recv(buffer, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(&buffer, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
   }
   // switch(root) {
   //   case 0:
@@ -58,12 +66,15 @@ int main(int argc, char *argv[]) {
   if(id == 0) {
     changeMe = 1000;
     for(int i = 1; i < p; i++) {
-      MPI_Send(&changeMe, i, MPI_INT, 1, 0, MPI_COMM_WORLD);
+      MPI_Send(&changeMe, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
     }
     // MPI_Send(&changeMe, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
     // myBcast(&changeMe, 1, MPI_INT, 0, MPI_COMM_WORLD, p, status);
   }
-    myBcast(&changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
+  else {
+    MPI_Recv(&changeMe, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+  }
+    // myBcast(&changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
   // myBcast(&changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, &status);
 
   // else {
