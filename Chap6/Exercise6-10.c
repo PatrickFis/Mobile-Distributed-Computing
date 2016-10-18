@@ -6,7 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "MyMPI.h"
-int myBcast(int buffer,
+double myBcast(double buffer,
             int count,
             MPI_Datatype datatype,
             int root,
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
   int id;
   int p;
   double elapsed_time;
-  int changeMe;
+  double changeMe;
   MPI_Status status;
 
   MPI_Init(&argc, &argv);
@@ -80,14 +80,14 @@ int main(int argc, char *argv[]) {
   //     myBcast(&changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, &status);
   // }
   if(id == 0) {
-    changeMe = 1000;
-    myBcast(changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
+    changeMe = 1293021.213123;
+    myBcast(changeMe, 1, MPI_DOUBLE, id, MPI_COMM_WORLD, p, status);
   }
   else {
-    changeMe = myBcast(changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
+    changeMe = myBcast(changeMe, 1, MPI_DOUBLE, id, MPI_COMM_WORLD, p, status);
   }
 
-  printf("changeMe = %d, id = %d\n",changeMe,id);
+  printf("changeMe = %f, id = %d\n",changeMe,id);
   MPI_Finalize();
   return 0;
 }
