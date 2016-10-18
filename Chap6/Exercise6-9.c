@@ -20,12 +20,13 @@
 //     MPI_Send(&sendBuf, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
 //   }
 // }
-void myReduce(int sendBuf, int recvBuf, int numProcesses, int id, MPI_Status status) {
+void myReduce(int sendBuf, int *recvBuf, int numProcesses, int id, MPI_Status status) {
   if(id == 0) {
-    MPI_Recv(&sendBuf, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-    int *temp = &recvBuf;
-    *temp += sendBuf;
-    printf("temp = %d\n", *temp);
+    int i;
+    for(i = 1; i < numProcesses; i++) {
+      MPI_Recv(&sendBuf, 1, MPI_INT, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      *recvBuf += sendBuf;
+    }
   }
   else {
     MPI_Send(&sendBuf, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
@@ -57,10 +58,10 @@ int main(int argc, char *argv[]) {
   // }
   if(id != 0) {
     sum = 1337;
-    myReduce(sum, global_sum, p, id, status);
+    myReduce(sum, &global_sum, p, id, status);
   }
   else {
-    myReduce(sum, global_sum, p, id, status);
+    myReduce(sum, &global_sum, p, id, status);
   }
   // printf("sum = %d, id = %d\n", sum,id);
   // myReduce(&sum, &global_sum, id, status);
