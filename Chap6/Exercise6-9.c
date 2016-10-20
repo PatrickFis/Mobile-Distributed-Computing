@@ -13,16 +13,16 @@
  * process i. Since C is pass by value, recvBuf must be manipulated through
  * pointers.
  */
-void myReduce(int sendBuf, int *recvBuf, int numProcesses, int id, MPI_Status status) {
+void myReduce(int sendBuf, int *recvBuf, int count, int numProcesses, int id, MPI_Status status) {
   if(id == 0) {
     int i;
     for(i = 1; i < numProcesses; i++) {
-      MPI_Recv(&sendBuf, 1, MPI_INT, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&sendBuf, count, MPI_INT, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
       *recvBuf += sendBuf;
     }
   }
   else {
-    MPI_Send(&sendBuf, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(&sendBuf, count, MPI_INT, 0, 0, MPI_COMM_WORLD);
   }
 }
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
       sum += i;
     }
   }
-  myReduce(sum, &global_sum, p, id, status);
+  myReduce(sum, &global_sum, 1, p, id, status);
   elapsed_time += MPI_Wtime();
   if(id == 0) {
     printf("global_sum = %d, elapsed_time = %f\n", global_sum,elapsed_time);
