@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
   int proc0_size; // Size of proc 0's subarray
   int prime; // Current prime
   int size; // Elements in 'marked'
+  MPI_Status status; // Used for MPI_Recv
 
   MPI_Init(&argc, &argv);
 
@@ -114,7 +115,20 @@ int main(int argc, char *argv[]) {
       prime = (2*index) + 3;
       //printf("next prime %d\n",prime);
     }
-    MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    if(id == 0 && p != 1) { // Process 0 does not perform a receive
+      MPI_Send(&prime, 1, MPI_INT, id + 1, 0, MPI_COMM_WORLD);
+      // printf("my id = %d\n",id);
+    }
+    else if(id > 0 && id < p - 1) { // Processes 1 through p - 1 perform a send and a receive
+      MPI_Recv(&prime, 1, MPI_INT, id-1, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Send(&prime, 1, MPI_INT, id + 1, 0, MPI_COMM_WORLD);
+      // printf("my id = %d\n",id);
+    }
+    else { // Process p does not perform a send
+      MPI_Recv(&prime, 1, MPI_INT, id-1, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      // printf("my id = %d\n",id);
+    }
+    // MPI_Bcast(&prime, 1, MPI_INT, 0, MPI_COMM_WORLD);
   } while(prime * prime <= n);
   count = 0;
   for(i = 0; i < size; i++)
