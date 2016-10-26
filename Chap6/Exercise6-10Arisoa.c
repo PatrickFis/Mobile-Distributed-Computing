@@ -15,7 +15,7 @@ void my_bcast(void* data, int count, MPI_Datatype datatype, int root,
     MPI_Comm_rank(communicator, &world_rank);
     int world_size;
     MPI_Comm_size(communicator, &world_size);
-    
+
     if (world_rank == root) {
         // If we are the root process, send our data to everyone
         int i;
@@ -31,178 +31,12 @@ void my_bcast(void* data, int count, MPI_Datatype datatype, int root,
     }
 }
 
-int myBcastInt(int buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
-
-long myBcastLong(long buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
-
-double myBcastDouble(double buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
-
-float myBcastFloat(float buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
-
-char myBcastChar(char buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
-
-long double myBcastLDouble(long double buffer,
-            int count,
-            MPI_Datatype datatype,
-            int root,
-            MPI_Comm comm,
-            int numProcesses,
-            MPI_Status status) {
-  /*
-  * buffer - Address of 1st broadcast element
-  * count - Number of elements to broadcast
-  * datatype - Type of elements to broadcast
-  * root - ID of process doing the broadcast
-  * comm - Communicator
-  * numProcesses - Number of processes
-  * status - Used for MPI_Recv.
-  */
-  if(root == 0) {
-    for(int i = 1; i < numProcesses; i++) {
-      MPI_Send(&buffer, count, datatype, i, 0, MPI_COMM_WORLD);
-      // printf("buffer: %d, i: %d\n", buffer,i);
-    }
-  }
-  else {
-    MPI_Recv(&buffer, count, datatype, 0, 0, MPI_COMM_WORLD, &status);
-    return buffer;
-  }
-}
 
 int main(int argc, char *argv[]) {
   int id;
   int p;
   double elapsed_time;
+  double test_time; // Used to compare my_bcast to built in function
   int changeMe;
   MPI_Status status;
 
@@ -225,25 +59,48 @@ int main(int argc, char *argv[]) {
     changeMe4 = 129301293;
     changeMe5 = 'C';
     changeMe6 = 19304329401324.18911322211;
-    myBcastInt(changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
-    myBcastDouble(changeMe2, 1, MPI_DOUBLE, id, MPI_COMM_WORLD, p, status);
-    myBcastFloat(changeMe3, 1, MPI_FLOAT, id, MPI_COMM_WORLD, p, status);
-    myBcastLong(changeMe4, 1, MPI_LONG, id, MPI_COMM_WORLD, p, status);
-    myBcastChar(changeMe5, 1, MPI_CHAR, id, MPI_COMM_WORLD, p, status);
-    myBcastLDouble(changeMe6, 1, MPI_LONG_DOUBLE, id, MPI_COMM_WORLD, p, status);
+    my_bcast(&changeMe, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe2, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe3, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe4, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe5, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe6, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
   }
   else {
-     changeMe = myBcastInt(changeMe, 1, MPI_INT, id, MPI_COMM_WORLD, p, status);
-     changeMe2 = myBcastDouble(changeMe2, 1, MPI_DOUBLE, id, MPI_COMM_WORLD, p, status);
-     changeMe3 = myBcastFloat(changeMe3, 1, MPI_FLOAT, id, MPI_COMM_WORLD, p, status);
-     changeMe4 = myBcastLong(changeMe4, 1, MPI_LONG, id, MPI_COMM_WORLD, p, status);
-     changeMe5 = myBcastChar(changeMe5, 1, MPI_CHAR, id, MPI_COMM_WORLD, p, status);
-     changeMe6 = myBcastLDouble(changeMe6, 1, MPI_LONG_DOUBLE, id, MPI_COMM_WORLD, p, status);
+    my_bcast(&changeMe, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe2, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe3, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe4, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe5, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    my_bcast(&changeMe6, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
   }
      elapsed_time += MPI_Wtime();
+     test_time = MPI_Wtime();
   printf("changeMe = %d, changeMe2 = %f, changeMe3 = %f,changeMe4 = %ld, changeMe5 = %c, changeMe6 = %Lf,id = %d\n",
           changeMe,changeMe2,changeMe3,changeMe4,
           changeMe5,changeMe6,id);
+  // printf("changeMe = %d\n", changeMe);
+  if(id == 0) {
+    changeMe = 2000;
+    changeMe2 = 200.01;
+    changeMe3 = 20.1010101;
+    changeMe4 = 229301293;
+    changeMe5 = 'M';
+    changeMe6 = 29304329401324.18911322211;
+    MPI_Bcast(&changeMe, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&changeMe2, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&changeMe3, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&changeMe4, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&changeMe5, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&changeMe6, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
+  }
+  else {
+      test_time += MPI_Wtime();
+    printf("changeMe = %d, changeMe2 = %f, changeMe3 = %f,changeMe4 = %ld, changeMe5 = %c, changeMe6 = %Lf,id = %d\n",
+            changeMe,changeMe2,changeMe3,changeMe4,
+            changeMe5,changeMe6,id);
+    printf("test_time = %10.6f\n", test_time);
+  }
   MPI_Finalize();
   if(!id) printf("elapsed_time = %10.6f\n", elapsed_time);
   return 0;
