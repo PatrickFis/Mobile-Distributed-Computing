@@ -73,6 +73,8 @@ int main(int argc, char *argv[]) {
   MPI_Status status;
 
   MPI_Init(&argc, &argv);
+
+  /* Start the timer */
   MPI_Barrier(MPI_COMM_WORLD);
   elapsed_time = -MPI_Wtime();
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
@@ -97,8 +99,11 @@ int main(int argc, char *argv[]) {
   }
   MPI_Reduce(&sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
+  /* Stop the timer */
   elapsed_time += MPI_Wtime();
 
+  /* Print the results */
+  
   if(!id) {
     global_sum /= n;
     global_sum *= volume;
