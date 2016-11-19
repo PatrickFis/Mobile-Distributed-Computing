@@ -1,8 +1,6 @@
 /*
 * Exercise 6-10 - Write your own version of MPI_Bcast using MPI_Send and
 * MPI_Recv.
-* I just wrote different functions for different data types. I had some trouble getting
-* a generic version working.
 */
 #include <mpi.h>
 #include <math.h>
@@ -45,6 +43,7 @@ int main(int argc, char *argv[]) {
   /* Start the timer */
   MPI_Barrier(MPI_COMM_WORLD);
   elapsed_time = -MPI_Wtime();
+  // test_time = -MPI_Wtime();
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &p);
   double changeMe2;
@@ -75,12 +74,11 @@ int main(int argc, char *argv[]) {
     my_bcast(&changeMe6, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
   }
      elapsed_time += MPI_Wtime();
-     test_time = MPI_Wtime();
   printf("changeMe = %d, changeMe2 = %f, changeMe3 = %f,changeMe4 = %ld, changeMe5 = %c, changeMe6 = %Lf,id = %d\n",
           changeMe,changeMe2,changeMe3,changeMe4,
           changeMe5,changeMe6,id);
-  // printf("changeMe = %d\n", changeMe);
   if(id == 0) {
+    test_time = -MPI_Wtime();
     changeMe = 2000;
     changeMe2 = 200.01;
     changeMe3 = 20.1010101;
@@ -93,15 +91,19 @@ int main(int argc, char *argv[]) {
     MPI_Bcast(&changeMe4, 1, MPI_LONG, 0, MPI_COMM_WORLD);
     MPI_Bcast(&changeMe5, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&changeMe6, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
+    test_time += MPI_Wtime();
   }
   else {
-      test_time += MPI_Wtime();
+      // test_time += MPI_Wtime();
     printf("changeMe = %d, changeMe2 = %f, changeMe3 = %f,changeMe4 = %ld, changeMe5 = %c, changeMe6 = %Lf,id = %d\n",
             changeMe,changeMe2,changeMe3,changeMe4,
             changeMe5,changeMe6,id);
-    printf("test_time = %10.6f\n", test_time);
   }
   MPI_Finalize();
-  if(!id) printf("elapsed_time = %10.6f\n", elapsed_time);
+  if(!id) {
+    printf("elapsed_time is the amount of time that it took for my_bcast to run.\ntest_time is the amount of time that it took for the built in MPI_Bcast to run.\n");
+    printf("elapsed_time = %10.6f\n", elapsed_time);
+    printf("test_time = %10.6f\n", test_time);
+  }
   return 0;
 }

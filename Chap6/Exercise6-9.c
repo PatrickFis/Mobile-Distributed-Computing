@@ -31,7 +31,10 @@ int main(int argc, char *argv[]) {
   int p;
   int sum = 0; // Local sum
   int global_sum = 0; // Global sum
-  double elapsed_time;
+  int MPI_Reduce_sum = 0; // Local sum for built in function testing
+  int MPI_Reduce_global_sum = 0; // Global sum for built in function testing
+  double elapsed_time; // Time for myReduce to run
+  double test_time; // Time for MPI_Reduce to run
   MPI_Status status;
 
   MPI_Init(&argc, &argv);
@@ -49,8 +52,19 @@ int main(int argc, char *argv[]) {
   }
   myReduce(sum, &global_sum, 1, p, id, status);
   elapsed_time += MPI_Wtime();
+  if(id == 0)
+    test_time = -MPI_Wtime();
+  if(id != 0) {
+    int i;
+    for(i = 1; i < 101; i++) {
+      MPI_Reduce_sum += i;
+    }
+  }
+  MPI_Reduce(&MPI_Reduce_sum, &MPI_Reduce_global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+  test_time += MPI_Wtime();
   if(id == 0) {
     printf("global_sum = %d, elapsed_time = %f\n", global_sum,elapsed_time);
+    printf("MPI_Reduce_global_sum = %d, test_time = %f\n", MPI_Reduce_global_sum,test_time);
   }
   MPI_Finalize();
   return 0;
