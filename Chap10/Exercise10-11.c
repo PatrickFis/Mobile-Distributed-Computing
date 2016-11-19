@@ -3,10 +3,15 @@
  * Assume n = 20 and T = 1. Use a random number generator to construct matrix
  * D. Each entry should be a uniform random variable between 0 and 10. Each
  * process should solve the problem for the same matrix D, but with different
- * seeds for the random number generator.
+ * seeds for the random number generator. Output will show the original array of
+ * room assignments along with a rounded version of the array of roommate
+ * incompatibilities. Following this will be the room assignments found by each
+ * process. This was how I understood the problem, as each process is using a
+ * different seed for the random number generator, so different processes
+ * should calculate different results.
  *
  * Compile using mpicc -o Exercise10-11 Exercise10-11.c -lm
- * Run using mpirun -np p ./Exercise10-11 n
+ * Run using mpirun -np p ./Exercise10-11
  */
 
 #include <mpi.h>
@@ -53,7 +58,6 @@ int main(int argc, char *argv[]) {
   int i, j;
   MPI_Status status;
 
-  //Print the original room assignments
   MPI_Init(&argc, &argv);
 
   /* Start the timer */
@@ -67,10 +71,6 @@ int main(int argc, char *argv[]) {
     a[i] = i/2;
   }
   shuffle(a, 20);
-  for(i = 0; i < 20; i++) {
-    printf("%d ", a[i]);
-  }
-  printf("\n");
   // Using a random number generator to populate D, which will be filled with
   // a uniform random variable between 0 and 10. This array will be the same
   // for every process.
@@ -79,13 +79,6 @@ int main(int argc, char *argv[]) {
       d[i][j] = randDouble() * 10;
     }
   }
-  // for(i = 0; i < 20; i++) {
-  //   for(j = 0; j < 20; j++) {
-  //     printf("%.2f, ", d[i][j]);
-  //   }
-  //   printf("\n");
-  // }
-  // printf("\n");
 
   for(i = 0; i < 20; i++) { // Calculate starting sum.
     for(j = 0; j < 20; j++) {
@@ -95,8 +88,24 @@ int main(int argc, char *argv[]) {
     }
   }
   // printf("sum = %f, id = %d\n", sum, id);
+  if(!id) {
+    // Print the original room assignments and the rounded table of roommate incompatibilities
+    printf("Original room assignments:\n");
+    for(i = 0; i < 20; i++) {
+      printf("%d ", a[i]);
+    }
+    printf("\n");
+    printf("Roommate incompatibilities(rounded to two decimals):\n");
+    for(i = 0; i < 20; i++) {
+      for(j = 0; j < 20; j++) {
+        printf("%.2f ", d[i][j]);
+      }
+      printf("\n");
+    }
+    printf("\n");
+  }
 
-  if(id) srand((unsigned)time(NULL)); // Reset the random number seed to something new for each process
+  if(id != 0) srand((unsigned)time(NULL)); // Reset the random number seed to something new for each process
 
   i = 0;
   while(i < 1000) {
@@ -107,16 +116,9 @@ int main(int argc, char *argv[]) {
       c1 = (int)floor(u);
       u = randDouble()*20;
       c2 = (int)floor(u);
-      // printf("c1 = %d, c2 = %d\n", c1,c2);
-      // printf("a[c1] = %d, a[c2] = %d\n", a[c1],a[c2]);
       if(a[c1] != a[c2]) {
-        // printf("broke");
         break;
       }
-      // for(i = 0; i < 20; i++) {
-      //   printf("%d ", a[i]);
-      // }
-      // printf("\n");
     }
     // Calculate new__sum assuming c1 and c2 swap rooms
     int tmpSwp[20];
@@ -133,25 +135,17 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    // printf("newsum = %f, sum = %f, u = %f, c1 = %d, c2 = %d\n", new__sum, sum, u, c1, c2);
     if(new__sum < sum || u <= exp((sum - new__sum)/t)) {
       // exp = e ^ expression
       // Swap the two roommates
       swap(a, c1, c2);
       sum = new__sum;
-      // printf("Got in here\n new__sum = %f, sum = %f\n", new__sum, sum);
       i = 0;
-      // for(k = 0; k < 20; k++) {
-      //   printf("%d ", a[k]);
-      // }
-      // printf("\n");
     }
     else {
       i++;
     }
     t = 0.999 * t;
-    // printf("i = %d, id = %d\n", i, id);
-    // printf("newsum = %f, sum = %f\n", new__sum, sum);
   }
   // Print a and sum from each process.
   printf("Process ID: %d, room assignments:\n", id);
